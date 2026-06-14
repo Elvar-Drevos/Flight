@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Schiphol Departures · Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-0: #060b16;
+    --bg-1: #0b1424;
+    --bg-2: #142035;
+    --border: #1c2944;
+    --border-soft: rgba(28, 41, 68, 0.5);
+    --text: #eaf0fa;
+    --muted: #7b8aa6;
+    --accent: #fdc62e;
+    --accent-soft: rgba(253, 198, 46, 0.12);
+    --green: #4ade80;
+    --cyan: #38bdf8;
+    --yellow: #facc15;
+    --orange: #fb923c;
+    --red: #f87171;
+    --gray: #64748b;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-0);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 50% at 80% 0%, rgba(253, 198, 46, 0.06) 0%, transparent 60%),
+      linear-gradient(180deg, #0b1424 0%, var(--bg-0) 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    padding: 1.4vw 2.5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(20, 32, 53, 0.55) 0%, rgba(10, 15, 26, 0) 100%);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 1.6vw;
+  }
+
+  .plane-icon {
+    width: 2.6vw;
+    height: 2.6vw;
+    color: var(--accent);
+    transform: rotate(-15deg);
+    filter: drop-shadow(0 0 12px rgba(253, 198, 46, 0.35));
+  }
+
+  .logo {
+    font-weight: 800;
+    font-size: 2.1vw;
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  .logo .accent { color: var(--accent); }
+
+  .subtitle {
+    font-size: 0.95vw;
+    color: var(--muted);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    padding-left: 1.5vw;
+    border-left: 1px solid var(--border);
+    line-height: 1;
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 2.5vw;
+  }
+
+  .live {
+    display: flex;
+    align-items: center;
+    gap: 0.7vw;
+    font-size: 0.9vw;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .live .dot {
+    width: 0.75vw;
+    height: 0.75vw;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 14px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .live.offline .dot {
+    background: var(--red);
+    box-shadow: 0 0 14px var(--red);
+    animation: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.85); }
+  }
+
+  .clock-wrap { text-align: right; line-height: 1; }
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.2vw;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .date {
+    font-size: 0.85vw;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 0.4vw;
+  }
+
+  /* ---------- BOARD ---------- */
+  .board {
+    flex: 1;
+    padding: 0.5vw 2.5vw 1vw;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .table-head, .row {
+    display: grid;
+    grid-template-columns: 8vw 10vw 1fr 7vw 13vw;
+    align-items: center;
+    gap: 1.5vw;
+    padding: 0.9vw 1vw;
+  }
+
+  .table-head {
+    font-size: 0.8vw;
+    color: var(--muted);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1vw;
+    padding-top: 1.2vw;
+  }
+  .table-head .right { text-align: right; }
+  .table-head .center { text-align: center; }
+
+  .rows {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    padding-top: 0.4vw;
+  }
+
+  .row {
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 1.7vw;
+    font-weight: 500;
+    animation: fadeIn 0.45s ease-out;
+    position: relative;
+  }
+
+  .row.departed { opacity: 0.32; }
+  .row.cancelled .col-destination { color: var(--red); text-decoration: line-through; text-decoration-thickness: 2px; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .row.departed { animation: none; }
+
+  /* Columns */
+  .col-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .col-time .new-time {
+    display: block;
+    font-size: 1vw;
+    color: var(--text);
+    margin-top: 0.25vw;
+  }
+  .col-time .old-time {
+    display: block;
+    font-size: 0.95vw;
+    color: var(--muted);
+    text-decoration: line-through;
+    margin-top: 0.2vw;
+  }
+
+  .col-flight {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .col-flight .airline {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8vw;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 0.35vw;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .col-destination {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+  }
+  .col-destination .via {
+    display: block;
+    font-size: 0.9vw;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0.05em;
+    margin-top: 0.35vw;
+  }
+  .col-destination .iata-suffix {
+    color: var(--muted);
+    font-weight: 500;
+    margin-left: 0.6vw;
+    font-size: 1.1vw;
+  }
+
+  .col-gate {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text);
+    font-size: 1.6vw;
+  }
+  .col-gate.empty { color: var(--muted); font-weight: 400; }
+
+  .col-status {
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 1.2vw;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .status-on-time      { color: var(--green); }
+  .status-delayed      { color: var(--orange); }
+  .status-boarding     { color: var(--yellow); animation: blink 1.6s ease-in-out infinite; }
+  .status-gate-open    { color: var(--cyan); }
+  .status-gate-closing { color: var(--orange); animation: blink 0.8s ease-in-out infinite; }
+  .status-gate-closed  { color: var(--red); }
+  .status-final-call   { color: var(--red); animation: blink 0.8s ease-in-out infinite; }
+  .status-departed     { color: var(--gray); }
+  .status-cancelled    { color: var(--red); }
+  .status-diverted     { color: var(--orange); }
+  .status-wait         { color: var(--cyan); }
+  .status-unknown      { color: var(--muted); }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  /* ---------- FOOTER ---------- */
+  .footer {
+    padding: 0.9vw 2.5vw;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8vw;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: linear-gradient(0deg, rgba(20, 32, 53, 0.45) 0%, rgba(10, 15, 26, 0) 100%);
+  }
+
+  /* ---------- LOADER / ERROR ---------- */
+  .loader, .error-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5vw;
+    color: var(--muted);
+    font-size: 1.3vw;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 2vw;
+  }
+
+  .spinner {
+    width: 4vw;
+    height: 4vw;
+    border: 0.3vw solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-icon {
+    font-size: 4vw;
+    color: var(--red);
+    line-height: 1;
+  }
+  .error-detail {
+    font-size: 0.95vw;
+    color: var(--muted);
+    max-width: 60vw;
+    text-align: center;
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+    text-transform: none;
+  }
+  .error-detail code {
+    background: var(--bg-1);
+    padding: 0.15vw 0.5vw;
+    border-radius: 0.3vw;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 0.9vw;
+  }
+
+  /* Responsive: smaller screens (preview / phone) */
+  @media (max-width: 900px) {
+    .table-head, .row {
+      grid-template-columns: 16vw 18vw 1fr 12vw 22vw;
+      font-size: 3.2vw;
+    }
+    .clock { font-size: 5vw; }
+    .logo { font-size: 5vw; }
+    .subtitle, .live, .date { font-size: 2.4vw; }
+    .col-status { font-size: 2.4vw; }
+    .col-gate { font-size: 3vw; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="brand">
+    <svg class="plane-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16z"/>
+    </svg>
+    <div class="logo">SCHIPHOL<span class="accent">.</span></div>
+    <div class="subtitle">Departures</div>
+  </div>
+  <div class="meta">
+    <div class="live" id="liveIndicator">
+      <span class="dot"></span>
+      <span id="liveText">Live</span>
+    </div>
+    <div class="clock-wrap">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="date" id="date">--</div>
+    </div>
+  </div>
+</header>
+
+<main class="board" id="board">
+  <div class="loader">
+    <div class="spinner"></div>
+    <div>Vluchten laden...</div>
+  </div>
+</main>
+
+<footer class="footer">
+  <span>Bron: Schiphol Public Flight API</span>
+  <span id="lastUpdate">Bezig met laden...</span>
+</footer>
+
+<script>
+/* =====================================================================
+   Schiphol Departures – Digital Signage
+   Single-file. No build step. Drop into a GitHub repo, enable Pages.
+   ===================================================================== */
+
+const APP_ID  = '51778c0e';
+const APP_KEY = 'e217697edda771c111092b7648b1b8b8';
+const RESOURCE_VERSION = 'v4';
+
+const REFRESH_INTERVAL_MS = 90_000;   // refetch every 90 seconds
+const MAX_ROWS = 14;                  // rows visible on board
+const LOOKBACK_MIN = 10;              // include flights up to 10 min ago (still boarding/departing)
+const LOOKAHEAD_HOURS = 8;            // look ahead this many hours
+const HIDE_DEPARTED_AFTER_MIN = 5;    // hide flights >5 min after departure
+const MAX_PAGES = 5;                  // safety cap on pagination
+
+/* ---------- Airline IATA → human name (subset; falls back to code) ---------- */
+const AIRLINES = {
+  KL:'KLM', AF:'Air France', DL:'Delta', AZ:'ITA Airways', BA:'British Airways',
+  IB:'Iberia', LH:'Lufthansa', LX:'Swiss', OS:'Austrian', SN:'Brussels Airlines',
+  SK:'SAS', AY:'Finnair', DY:'Norwegian', FI:'Icelandair', EI:'Aer Lingus',
+  TP:'TAP Portugal', LO:'LOT', OK:'Czech Airlines', RO:'TAROM', JU:'Air Serbia',
+  EK:'Emirates', QR:'Qatar Airways', EY:'Etihad', TK:'Turkish Airlines',
+  SV:'Saudia', GF:'Gulf Air', WY:'Oman Air', ME:'MEA', RJ:'Royal Jordanian',
+  SQ:'Singapore Airlines', CX:'Cathay Pacific', CI:'China Airlines', BR:'EVA Air',
+  JL:'Japan Airlines', NH:'ANA', KE:'Korean Air', OZ:'Asiana',
+  CA:'Air China', CZ:'China Southern', MU:'China Eastern', HU:'Hainan',
+  AI:'Air India', UK:'Vistara', '6E':'IndiGo',
+  ET:'Ethiopian', MS:'EgyptAir', SA:'South African', KQ:'Kenya Airways', AT:'Royal Air Maroc',
+  AC:'Air Canada', UA:'United', AA:'American', B6:'JetBlue', WS:'WestJet', AS:'Alaska',
+  AM:'Aeromexico', AV:'Avianca', LA:'LATAM', AR:'Aerolineas Argentinas', CM:'Copa',
+  TG:'Thai Airways', MH:'Malaysia Airlines', GA:'Garuda', VN:'Vietnam Airlines', PR:'Philippine Airlines',
+  FR:'Ryanair', U2:'easyJet', VY:'Vueling', W6:'Wizz Air', PC:'Pegasus',
+  EW:'Eurowings', '4U':'Eurowings', X3:'TUIfly', OR:'TUI fly', HV:'Transavia',
+  TO:'Transavia France', BE:'flybe', LS:'Jet2', ZB:'Air Albania',
+  AF:'Air France', NZ:'Air New Zealand', QF:'Qantas', VA:'Virgin Australia',
+  MF:'Xiamen Air', '3U':'Sichuan Airlines',
+};
+
+/* ---------- IATA → City for most common Schiphol destinations ---------- */
+const IATA_CITIES = {
+  // Europe — UK & Ireland
+  LHR:'Londen Heathrow', LGW:'Londen Gatwick', STN:'Londen Stansted', LTN:'Londen Luton', LCY:'Londen City',
+  MAN:'Manchester', BHX:'Birmingham', EDI:'Edinburgh', GLA:'Glasgow', NCL:'Newcastle', ABZ:'Aberdeen',
+  BRS:'Bristol', BFS:'Belfast', SOU:'Southampton', LBA:'Leeds Bradford', EMA:'East Midlands', NWI:'Norwich',
+  DUB:'Dublin', ORK:'Cork', SNN:'Shannon',
+  // Europe — France
+  CDG:'Parijs Charles de Gaulle', ORY:'Parijs Orly', LYS:'Lyon', NCE:'Nice', MRS:'Marseille',
+  TLS:'Toulouse', BOD:'Bordeaux', NTE:'Nantes', BIQ:'Biarritz',
+  // Europe — Germany & Switzerland & Austria
+  FRA:'Frankfurt', MUC:'München', BER:'Berlijn', HAM:'Hamburg', DUS:'Düsseldorf', STR:'Stuttgart',
+  CGN:'Keulen/Bonn', HAJ:'Hannover', NUE:'Neurenberg', LEJ:'Leipzig', BRE:'Bremen', DRS:'Dresden',
+  ZRH:'Zürich', GVA:'Genève', BSL:'Basel', BRN:'Bern',
+  VIE:'Wenen', SZG:'Salzburg', INN:'Innsbruck', GRZ:'Graz',
+  // Benelux
+  BRU:'Brussel', ANR:'Antwerpen', LGG:'Luik', LUX:'Luxemburg',
+  EIN:'Eindhoven', RTM:'Rotterdam', GRQ:'Groningen', MST:'Maastricht',
+  // Scandinavia
+  CPH:'Kopenhagen', BLL:'Billund', AAL:'Aalborg', AAR:'Aarhus',
+  ARN:'Stockholm Arlanda', BMA:'Stockholm Bromma', GOT:'Göteborg', MMX:'Malmö',
+  OSL:'Oslo', BGO:'Bergen', SVG:'Stavanger', TRD:'Trondheim',
+  HEL:'Helsinki', TLL:'Tallinn', RIX:'Riga', VNO:'Vilnius', KUN:'Kaunas',
+  KEF:'Reykjavik',
+  // Iberia
+  MAD:'Madrid', BCN:'Barcelona', VLC:'Valencia', SVQ:'Sevilla', AGP:'Málaga', BIO:'Bilbao',
+  ALC:'Alicante', SCQ:'Santiago de Compostela', LPA:'Las Palmas', TFS:'Tenerife Zuid', TFN:'Tenerife Noord',
+  ACE:'Lanzarote', FUE:'Fuerteventura', PMI:'Palma de Mallorca', IBZ:'Ibiza', MAH:'Menorca',
+  LIS:'Lissabon', OPO:'Porto', FAO:'Faro', FNC:'Funchal', PDL:'Ponta Delgada',
+  // Italy
+  FCO:'Rome Fiumicino', CIA:'Rome Ciampino', MXP:'Milaan Malpensa', LIN:'Milaan Linate', BGY:'Bergamo',
+  VCE:'Venetië', BLQ:'Bologna', NAP:'Napels', CTA:'Catania', PMO:'Palermo',
+  TRN:'Turijn', PSA:'Pisa', FLR:'Florence', BRI:'Bari', VRN:'Verona', CAG:'Cagliari', OLB:'Olbia',
+  // Balkans / Mediterranean
+  ATH:'Athene', SKG:'Thessaloniki', HER:'Heraklion', CFU:'Korfoe', RHO:'Rhodos', JTR:'Santorini', JMK:'Mykonos', KGS:'Kos',
+  LCA:'Larnaca', PFO:'Paphos',
+  IST:'Istanbul', SAW:'Istanbul Sabiha', AYT:'Antalya', ADB:'Izmir', ESB:'Ankara', BJV:'Bodrum', DLM:'Dalaman',
+  TIA:'Tirana', SJJ:'Sarajevo', SKP:'Skopje', BEG:'Belgrado', PRN:'Pristina',
+  ZAG:'Zagreb', SPU:'Split', DBV:'Dubrovnik', LJU:'Ljubljana',
+  // Central / Eastern Europe
+  WAW:'Warschau', WMI:'Warschau Modlin', KRK:'Krakau', GDN:'Gdansk', POZ:'Poznan', WRO:'Wroclaw', KTW:'Katowice',
+  PRG:'Praag', BRQ:'Brno', BUD:'Boedapest', OTP:'Boekarest', CLJ:'Cluj-Napoca',
+  SOF:'Sofia', VAR:'Varna', BOJ:'Boergas',
+  KBP:'Kiev Boryspil', IEV:'Kiev Zhuliany', LWO:'Lviv', KIV:'Chisinau',
+  // Middle East
+  DXB:'Dubai', DWC:'Dubai Al Maktoum', AUH:'Abu Dhabi', SHJ:'Sharjah', DOH:'Doha',
+  RUH:'Riyad', JED:'Jeddah', DMM:'Dammam', BAH:'Bahrein', KWI:'Koeweit', MCT:'Muscat',
+  TLV:'Tel Aviv', AMM:'Amman', BEY:'Beiroet', DAM:'Damascus', BGW:'Bagdad', IKA:'Teheran',
+  // Africa
+  CAI:'Caïro', HRG:'Hurghada', SSH:'Sharm el-Sheikh', LXR:'Luxor',
+  CMN:'Casablanca', RAK:'Marrakech', AGA:'Agadir', RBA:'Rabat', NDR:'Nador',
+  TUN:'Tunis', ALG:'Algiers',
+  LOS:'Lagos', ABV:'Abuja', ACC:'Accra', DKR:'Dakar', ABJ:'Abidjan', LFW:'Lomé',
+  NBO:'Nairobi', DAR:'Dar es Salaam', EBB:'Entebbe', KGL:'Kigali', ADD:'Addis Abeba',
+  JNB:'Johannesburg', CPT:'Kaapstad', DUR:'Durban',
+  MRU:'Mauritius', SEZ:'Seychellen', RUN:'Réunion',
+  // North America
+  JFK:'New York JFK', EWR:'Newark', LGA:'New York LaGuardia',
+  BOS:'Boston', IAD:'Washington Dulles', DCA:'Washington Reagan', BWI:'Baltimore',
+  PHL:'Philadelphia', CLT:'Charlotte', ATL:'Atlanta', MIA:'Miami', MCO:'Orlando', TPA:'Tampa', FLL:'Fort Lauderdale',
+  DTW:'Detroit', ORD:'Chicago O\'Hare', MDW:'Chicago Midway', MSP:'Minneapolis', MCI:'Kansas City', STL:'St. Louis',
+  DEN:'Denver', SLC:'Salt Lake City', PHX:'Phoenix', LAS:'Las Vegas',
+  LAX:'Los Angeles', SFO:'San Francisco', SAN:'San Diego', SEA:'Seattle', PDX:'Portland',
+  IAH:'Houston Bush', HOU:'Houston Hobby', DFW:'Dallas/Fort Worth', AUS:'Austin', SAT:'San Antonio',
+  YYZ:'Toronto Pearson', YUL:'Montreal', YVR:'Vancouver', YYC:'Calgary', YEG:'Edmonton', YOW:'Ottawa', YHZ:'Halifax',
+  // Caribbean / Latin America
+  HAV:'Havana', NAS:'Nassau', SXM:'Sint Maarten', AUA:'Aruba', CUR:'Curaçao', BON:'Bonaire',
+  SJU:'San Juan', PUJ:'Punta Cana', SDQ:'Santo Domingo', POP:'Puerto Plata', KIN:'Kingston', MBJ:'Montego Bay',
+  MEX:'Mexico-Stad', CUN:'Cancún', GDL:'Guadalajara', MTY:'Monterrey',
+  PTY:'Panama-Stad', SJO:'San José', GUA:'Guatemala', SAL:'San Salvador',
+  BOG:'Bogotá', MDE:'Medellín', UIO:'Quito', GYE:'Guayaquil',
+  LIM:'Lima', SCL:'Santiago de Chile', EZE:'Buenos Aires', AEP:'Buenos Aires Aeroparque',
+  GRU:'São Paulo Guarulhos', GIG:'Rio de Janeiro', BSB:'Brasília', SSA:'Salvador', REC:'Recife', FOR:'Fortaleza',
+  // Asia
+  DEL:'Delhi', BOM:'Mumbai', BLR:'Bangalore', HYD:'Hyderabad', MAA:'Chennai', CCU:'Calcutta', COK:'Kochi',
+  KTM:'Kathmandu', CMB:'Colombo', MLE:'Malé',
+  PEK:'Beijing Capital', PKX:'Beijing Daxing', PVG:'Shanghai Pudong', SHA:'Shanghai Hongqiao',
+  CAN:'Guangzhou', SZX:'Shenzhen', CTU:'Chengdu', XIY:'Xi\'an', HGH:'Hangzhou',
+  HKG:'Hongkong', MFM:'Macau', TPE:'Taipei Taoyuan',
+  NRT:'Tokio Narita', HND:'Tokio Haneda', KIX:'Osaka Kansai', NGO:'Nagoya',
+  ICN:'Seoul Incheon', GMP:'Seoul Gimpo', PUS:'Busan',
+  SIN:'Singapore', KUL:'Kuala Lumpur', BKK:'Bangkok Suvarnabhumi', DMK:'Bangkok Don Mueang',
+  HKT:'Phuket', CNX:'Chiang Mai', USM:'Koh Samui',
+  HAN:'Hanoi', SGN:'Ho Chi Minh-Stad', DAD:'Da Nang',
+  MNL:'Manila', CEB:'Cebu', CGK:'Jakarta', DPS:'Bali Denpasar', SUB:'Surabaya',
+  RGN:'Yangon', PNH:'Phnom Penh', VTE:'Vientiane',
+  ALA:'Almaty', TAS:'Tashkent', BKK:'Bangkok',
+  // Oceania
+  SYD:'Sydney', MEL:'Melbourne', BNE:'Brisbane', PER:'Perth', AKL:'Auckland', CHC:'Christchurch',
+  // Russia / CIS (selected)
+  SVO:'Moskou Sjeremetjevo', DME:'Moskou Domodedovo', VKO:'Moskou Vnoekovo', LED:'Sint-Petersburg',
+};
+
+/* ---------- Flight state code → label + css class ---------- */
+const STATE_LABELS = {
+  SCH: { label: 'On Time',       cls: 'status-on-time' },
+  DEL: { label: 'Delayed',       cls: 'status-delayed' },
+  WIL: { label: 'Wait in Lounge',cls: 'status-wait' },
+  GTO: { label: 'Gate Open',     cls: 'status-gate-open' },
+  BRD: { label: 'Boarding',      cls: 'status-boarding' },
+  GCL: { label: 'Gate Closing',  cls: 'status-gate-closing' },
+  GTD: { label: 'Gate Closed',   cls: 'status-gate-closed' },
+  GCH: { label: 'Gate Change',   cls: 'status-gate-open' },
+  DEP: { label: 'Departed',      cls: 'status-departed' },
+  CNX: { label: 'Cancelled',     cls: 'status-cancelled' },
+  TOM: { label: 'Tomorrow',      cls: 'status-unknown' },
+  DIV: { label: 'Diverted',      cls: 'status-diverted' },
+};
+
+/* ---------- DOM ---------- */
+const $board       = document.getElementById('board');
+const $clock       = document.getElementById('clock');
+const $date        = document.getElementById('date');
+const $lastUpdate  = document.getElementById('lastUpdate');
+const $live        = document.getElementById('liveIndicator');
+const $liveText    = document.getElementById('liveText');
+
+/* =====================================================================
+   Time / clock
+   ===================================================================== */
+function updateClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  $clock.textContent = `${hh}:${mm}:${ss}`;
+  const days = ['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'];
+  const months = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  $date.textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* =====================================================================
+   Fetch flights (direct → CORS proxy fallback). The Schiphol API
+   paginates 20 flights per page; we constrain the time window with
+   `fromDateTime`/`toDateTime` so page 0 already contains the next
+   upcoming departures, no smart pagination needed.
+   ===================================================================== */
+let useProxy = false; // sticky: once direct fails for this session, stay on proxy
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function isoLocalNoTz(d) {
+  // 2026-05-25T18:00:00 (no timezone — Schiphol API interprets as Europe/Amsterdam).
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function buildUrl(page) {
+  const now = new Date();
+  const from = new Date(now.getTime() - LOOKBACK_MIN * 60_000);
+  const to = new Date(now.getTime() + LOOKAHEAD_HOURS * 3600_000);
+  const params = new URLSearchParams({
+    flightDirection: 'D',
+    includedelays: 'true',
+    sort: '+scheduleTime',
+    searchDateTimeField: 'scheduleDateTime',
+    fromDateTime: isoLocalNoTz(from),
+    toDateTime: isoLocalNoTz(to),
+    page: String(page),
+  });
+  return `https://api.schiphol.nl/public-flights/flights?${params}`;
+}
+
+async function fetchPageOnce(page, viaProxy) {
+  const target = buildUrl(page);
+  const url = viaProxy ? `https://corsproxy.io/?url=${encodeURIComponent(target)}` : target;
+  const res = await fetch(url, {
+    headers: {
+      'app_id': APP_ID,
+      'app_key': APP_KEY,
+      'ResourceVersion': RESOURCE_VERSION,
+      'Accept': 'application/json',
+    },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} on page ${page}`);
+  return res.json();
+}
+
+async function fetchPage(page) {
+  if (!useProxy) {
+    try { return await fetchPageOnce(page, false); }
+    catch (e) { useProxy = true; console.warn('Direct API blocked, switching to proxy:', e.message); }
+  }
+  return fetchPageOnce(page, true);
+}
+
+async function fetchFlights() {
+  const flights = [];
+  const seen = new Set();
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const data = await fetchPage(page).catch(err => { console.warn('Page', page, 'failed:', err.message); return null; });
+    const list = data?.flights || [];
+    if (list.length === 0) break;
+    for (const f of list) {
+      // Skip codeshares — keep only the operating flight (mainFlight === flightName).
+      if (f.mainFlight && f.flightName && f.mainFlight !== f.flightName) continue;
+      const id = f.id || f.flightName;
+      if (!seen.has(id)) { seen.add(id); flights.push(f); }
+    }
+    if (flights.length >= MAX_ROWS + 6) break; // enough — stop paginating
+    if (list.length < 20) break;               // last page
+  }
+  return { flights };
+}
+
+/* =====================================================================
+   Helpers
+   ===================================================================== */
+function fmtTime(iso) {
+  if (!iso) return '--:--';
+  // ISO format: 2026-05-25T10:30:00.000+02:00 — slice HH:MM directly.
+  const m = iso.match(/T(\d{2}):(\d{2})/);
+  return m ? `${m[1]}:${m[2]}` : '--:--';
+}
+
+function timeToMinutes(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return isNaN(d) ? null : d.getTime();
+}
+
+function destinationName(iata) {
+  if (!iata) return '';
+  return IATA_CITIES[iata] || iata;
+}
+
+function airlineName(prefix) {
+  return AIRLINES[prefix] || prefix || '';
+}
+
+function currentState(flight) {
+  const states = flight.publicFlightState?.flightStates || [];
+  if (states.length === 0) return null;
+  // Use the LAST state (most recent).
+  return states[states.length - 1];
+}
+
+function escapeHTML(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+/* =====================================================================
+   Render
+   ===================================================================== */
+function renderBoard(flights) {
+  // Filter: drop flights departed long ago.
+  const now = Date.now();
+  const cutoffPast = now - HIDE_DEPARTED_AFTER_MIN * 60_000;
+
+  const usable = flights.filter(f => {
+    const sched = timeToMinutes(f.scheduleDateTime);
+    const state = currentState(f);
+    if (state === 'DEP') {
+      // Departed: hide if too old.
+      const dep = timeToMinutes(f.actualOffBlockTime) || sched;
+      return dep && dep > cutoffPast;
+    }
+    if (state === 'TOM') return false; // tomorrow's flights — skip
+    return sched && sched > cutoffPast - 30 * 60_000; // small grace for in-progress
+  });
+
+  // Sort by effective time (estimated > scheduled).
+  usable.sort((a, b) => {
+    const ta = timeToMinutes(a.estimatedLandingTime) || timeToMinutes(a.scheduleDateTime) || 0;
+    const tb = timeToMinutes(b.estimatedLandingTime) || timeToMinutes(b.scheduleDateTime) || 0;
+    return ta - tb;
+  });
+
+  const top = usable.slice(0, MAX_ROWS);
+
+  if (top.length === 0) {
+    $board.innerHTML = `
+      <div class="loader">
+        <div>Geen aankomende vertrekken gevonden.</div>
+      </div>`;
+    return;
+  }
+
+  let html = `
+    <div class="table-head">
+      <div>Tijd</div>
+      <div>Vlucht</div>
+      <div>Bestemming</div>
+      <div class="center">Gate</div>
+      <div class="right">Status</div>
+    </div>
+    <div class="rows" id="rows">
+  `;
+
+  for (const f of top) {
+    const sched = f.scheduleDateTime;
+    const estDep = f.estimatedLandingTime || f.expectedTimeBoarding || f.publicEstimatedOffBlockTime;
+    const schedStr = fmtTime(sched);
+    const estStr = estDep ? fmtTime(estDep) : null;
+    const showEst = estStr && estStr !== schedStr;
+
+    const destinations = f.route?.destinations || [];
+    const final = destinations[destinations.length - 1];
+    const vias = destinations.slice(0, -1);
+    const destName = destinationName(final);
+    const showIATASuffix = destName !== final && final;
+
+    const gate = f.gate || '';
+    const airline = airlineName(f.prefixIATA);
+    const flightNum = f.flightName || `${f.prefixIATA || ''}${f.flightNumber || ''}`;
+
+    const state = currentState(f);
+    const stateInfo = STATE_LABELS[state] || { label: state || '—', cls: 'status-unknown' };
+
+    const isDeparted = state === 'DEP';
+    const isCancelled = state === 'CNX';
+    const rowCls = ['row', isDeparted ? 'departed' : '', isCancelled ? 'cancelled' : ''].filter(Boolean).join(' ');
+
+    html += `
+      <div class="${rowCls}">
+        <div class="col-time">
+          ${showEst ? `<span class="old-time">${schedStr}</span><span class="new-time">${estStr}</span>` : schedStr}
+        </div>
+        <div class="col-flight">
+          ${escapeHTML(flightNum)}
+          ${airline ? `<span class="airline">${escapeHTML(airline)}</span>` : ''}
+        </div>
+        <div class="col-destination">
+          ${escapeHTML(destName)}${showIATASuffix ? `<span class="iata-suffix">${escapeHTML(final)}</span>` : ''}
+          ${vias.length ? `<span class="via">via ${vias.map(v => escapeHTML(destinationName(v))).join(', ')}</span>` : ''}
+        </div>
+        <div class="col-gate ${gate ? '' : 'empty'}">${escapeHTML(gate || '—')}</div>
+        <div class="col-status ${stateInfo.cls}">${escapeHTML(stateInfo.label)}</div>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  $board.innerHTML = html;
+}
+
+function renderError(msg) {
+  $board.innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">⚠</div>
+      <div>Kan vluchtgegevens niet laden</div>
+      <div class="error-detail">
+        ${escapeHTML(msg)}<br /><br />
+        De Schiphol API ondersteunt mogelijk geen directe browseraanvragen (CORS).
+        Als de fallback via <code>corsproxy.io</code> ook faalt, kun je dit hosten
+        achter een kleine proxy (bijv. een Cloudflare Worker) of zelf de API aanroepen vanaf je server.<br /><br />
+        We proberen het automatisch opnieuw.
+      </div>
+    </div>`;
+}
+
+/* =====================================================================
+   Main loop
+   ===================================================================== */
+let consecutiveErrors = 0;
+
+async function refresh() {
+  try {
+    const data = await fetchFlights();
+    const flights = Array.isArray(data?.flights) ? data.flights : [];
+    renderBoard(flights);
+    consecutiveErrors = 0;
+    $live.classList.remove('offline');
+    $liveText.textContent = 'Live';
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    $lastUpdate.textContent = `Laatst bijgewerkt: ${hh}:${mm}`;
+  } catch (e) {
+    consecutiveErrors++;
+    console.error('Fetch failed:', e);
+    $live.classList.add('offline');
+    $liveText.textContent = 'Offline';
+    if (consecutiveErrors >= 2) {
+      renderError(e.message || String(e));
+    }
+  }
+}
+
+refresh();
+setInterval(refresh, REFRESH_INTERVAL_MS);
+</script>
+</body>
+</html>
