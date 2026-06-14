@@ -95,7 +95,47 @@
   .meta {
     display: flex;
     align-items: center;
-    gap: 2.5vw;
+    gap: 2vw;
+  }
+
+  /* ---------- WEATHER ---------- */
+  .weather {
+    display: flex;
+    align-items: center;
+    gap: 0.7vw;
+    padding: 0.6vw 1.1vw;
+    background: rgba(28, 41, 68, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 0.7vw;
+    min-width: 9vw;
+  }
+  .weather.hidden { display: none; }
+  .weather .wx-icon {
+    width: 2.2vw;
+    height: 2.2vw;
+    flex-shrink: 0;
+  }
+  .weather .wx-temp {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6vw;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .weather .wx-cond {
+    display: block;
+    font-size: 0.65vw;
+    color: var(--muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 0.3vw;
+  }
+  .weather .wx-wind {
+    color: var(--muted);
+    font-size: 0.65vw;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 0.15vw;
   }
 
   .live {
@@ -144,10 +184,55 @@
     margin-top: 0.4vw;
   }
 
+  /* ---------- STATS BAR ---------- */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.6vw;
+    padding: 0.7vw 2.5vw;
+    border-bottom: 1px solid var(--border);
+    background: rgba(20, 32, 53, 0.35);
+    flex-wrap: wrap;
+  }
+  .stats-bar.hidden { display: none; }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    font-size: 0.8vw;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .stat-chip .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1vw;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .stat-chip .dot {
+    width: 0.55vw;
+    height: 0.55vw;
+    border-radius: 50%;
+  }
+  .stat-chip.green  .dot { background: var(--green); }
+  .stat-chip.yellow .dot { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .stat-chip.cyan   .dot { background: var(--cyan); }
+  .stat-chip.orange .dot { background: var(--orange); }
+  .stat-chip.red    .dot { background: var(--red); }
+  .stat-chip.gray   .dot { background: var(--gray); }
+  .stat-chip.green  .num { color: var(--green); }
+  .stat-chip.yellow .num { color: var(--yellow); }
+  .stat-chip.orange .num { color: var(--orange); }
+  .stat-chip.red    .num { color: var(--red); }
+  .stat-chip.total .num { color: var(--accent); }
+
   /* ---------- BOARD ---------- */
   .board {
     flex: 1;
-    padding: 0.5vw 2.5vw 1vw;
+    padding: 0.3vw 2.5vw 0.5vw;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -156,20 +241,20 @@
 
   .table-head, .row {
     display: grid;
-    grid-template-columns: 8vw 10vw 1fr 7vw 13vw;
+    grid-template-columns: 6vw 10vw 1fr 4vw 6vw 11vw;
     align-items: center;
-    gap: 1.5vw;
-    padding: 0.9vw 1vw;
+    gap: 1.2vw;
+    padding: 0.25vw 0.8vw;
   }
 
   .table-head {
-    font-size: 0.8vw;
+    font-size: 0.75vw;
     color: var(--muted);
     letter-spacing: 0.35em;
     text-transform: uppercase;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 1vw;
-    padding-top: 1.2vw;
+    padding-bottom: 0.9vw;
+    padding-top: 1vw;
   }
   .table-head .right { text-align: right; }
   .table-head .center { text-align: center; }
@@ -178,12 +263,12 @@
     flex: 1;
     overflow: hidden;
     position: relative;
-    padding-top: 0.4vw;
+    padding-top: 0.2vw;
   }
 
   .row {
     border-bottom: 1px solid var(--border-soft);
-    font-size: 1.7vw;
+    font-size: 1.2vw;
     font-weight: 500;
     animation: fadeIn 0.45s ease-out;
     position: relative;
@@ -204,19 +289,19 @@
     font-weight: 700;
     color: var(--text);
     line-height: 1.1;
+    white-space: nowrap;
   }
   .col-time .new-time {
-    display: block;
+    display: inline;
     font-size: 1vw;
-    color: var(--text);
-    margin-top: 0.25vw;
+    color: var(--orange);
+    margin-left: 0.4vw;
   }
   .col-time .old-time {
-    display: block;
-    font-size: 0.95vw;
     color: var(--muted);
     text-decoration: line-through;
-    margin-top: 0.2vw;
+    font-size: 0.85vw;
+    font-weight: 500;
   }
 
   .col-flight {
@@ -224,16 +309,32 @@
     font-weight: 700;
     color: var(--accent);
     line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .col-flight .airline {
-    display: block;
     font-family: 'Inter', sans-serif;
-    font-size: 0.8vw;
+    font-size: 0.7vw;
     color: var(--muted);
     font-weight: 500;
-    margin-top: 0.35vw;
+    margin-left: 0.5vw;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+  .col-flight .codeshare-badge {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.62vw;
+    font-weight: 600;
+    color: var(--muted);
+    background: rgba(123, 138, 166, 0.15);
+    border: 1px solid rgba(123, 138, 166, 0.3);
+    padding: 0.08vw 0.35vw;
+    border-radius: 0.25vw;
+    letter-spacing: 0.05em;
+    margin-left: 0.35vw;
+    vertical-align: 0.1vw;
   }
 
   .col-destination {
@@ -241,37 +342,49 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
     line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .col-destination .via {
-    display: block;
-    font-size: 0.9vw;
+    font-size: 0.75vw;
     color: var(--muted);
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0.05em;
-    margin-top: 0.35vw;
+    margin-left: 0.6vw;
   }
   .col-destination .iata-suffix {
     color: var(--muted);
     font-weight: 500;
-    margin-left: 0.6vw;
-    font-size: 1.1vw;
+    margin-left: 0.45vw;
+    font-size: 0.85vw;
   }
+
+  .col-terminal {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    text-align: center;
+    color: var(--cyan);
+    font-size: 1.05vw;
+    letter-spacing: 0.02em;
+  }
+  .col-terminal.empty { color: var(--muted); font-weight: 400; }
 
   .col-gate {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
     text-align: center;
     color: var(--text);
-    font-size: 1.6vw;
+    font-size: 1.15vw;
   }
   .col-gate.empty { color: var(--muted); font-weight: 400; }
 
   .col-status {
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    font-size: 1.2vw;
+    font-size: 0.95vw;
     text-align: right;
     white-space: nowrap;
   }
@@ -359,14 +472,19 @@
   /* Responsive: smaller screens (preview / phone) */
   @media (max-width: 900px) {
     .table-head, .row {
-      grid-template-columns: 16vw 18vw 1fr 12vw 22vw;
-      font-size: 3.2vw;
+      grid-template-columns: 13vw 15vw 1fr 7vw 10vw 18vw;
+      font-size: 2.6vw;
     }
     .clock { font-size: 5vw; }
     .logo { font-size: 5vw; }
     .subtitle, .live, .date { font-size: 2.4vw; }
-    .col-status { font-size: 2.4vw; }
-    .col-gate { font-size: 3vw; }
+    .col-status { font-size: 2vw; }
+    .col-gate { font-size: 2.6vw; }
+    .col-terminal { font-size: 2.4vw; }
+    .weather { display: none; }
+    .stats-bar { font-size: 1.6vw; gap: 2vw; padding: 1.2vw 2.5vw; }
+    .stat-chip { font-size: 1.6vw; }
+    .stat-chip .num { font-size: 2.2vw; }
   }
 </style>
 </head>
@@ -381,6 +499,7 @@
     <div class="subtitle">Departures</div>
   </div>
   <div class="meta">
+    <div class="weather hidden" id="weather"></div>
     <div class="live" id="liveIndicator">
       <span class="dot"></span>
       <span id="liveText">Live</span>
@@ -391,6 +510,8 @@
     </div>
   </div>
 </header>
+
+<div class="stats-bar hidden" id="statsBar"></div>
 
 <main class="board" id="board">
   <div class="loader">
@@ -415,11 +536,17 @@ const APP_KEY = 'e217697edda771c111092b7648b1b8b8';
 const RESOURCE_VERSION = 'v4';
 
 const REFRESH_INTERVAL_MS = 90_000;   // refetch every 90 seconds
-const MAX_ROWS = 14;                  // rows visible on board
-const LOOKBACK_MIN = 10;              // include flights up to 10 min ago (still boarding/departing)
+const WEATHER_REFRESH_MS = 10 * 60_000; // weather every 10 min
+const MAX_ROWS = 18;                  // rows visible on board
+const LOOKBACK_MIN = 30;              // include flights scheduled up to 30 min ago (catch normal delays)
 const LOOKAHEAD_HOURS = 8;            // look ahead this many hours
-const HIDE_DEPARTED_AFTER_MIN = 5;    // hide flights >5 min after departure
-const MAX_PAGES = 5;                  // safety cap on pagination
+const HIDE_DEPARTED_AFTER_MIN = 1;    // remove flights 1 min after actual departure
+const HIDE_PAST_AFTER_MIN = 10;       // hide non-active flights whose effective time was >10 min ago
+const MAX_PAGES = 6;                  // safety cap on pagination
+
+// Schiphol coordinates for weather lookup
+const SCHIPHOL_LAT = 52.3105;
+const SCHIPHOL_LON = 4.7683;
 
 /* ---------- Airline IATA → human name (subset; falls back to code) ---------- */
 const AIRLINES = {
@@ -437,11 +564,16 @@ const AIRLINES = {
   AC:'Air Canada', UA:'United', AA:'American', B6:'JetBlue', WS:'WestJet', AS:'Alaska',
   AM:'Aeromexico', AV:'Avianca', LA:'LATAM', AR:'Aerolineas Argentinas', CM:'Copa',
   TG:'Thai Airways', MH:'Malaysia Airlines', GA:'Garuda', VN:'Vietnam Airlines', PR:'Philippine Airlines',
-  FR:'Ryanair', U2:'easyJet', VY:'Vueling', W6:'Wizz Air', PC:'Pegasus',
+  FR:'Ryanair', U2:'easyJet', EJU:'easyJet Europe', VY:'Vueling', W6:'Wizz Air', PC:'Pegasus',
   EW:'Eurowings', '4U':'Eurowings', X3:'TUIfly', OR:'TUI fly', HV:'Transavia',
   TO:'Transavia France', BE:'flybe', LS:'Jet2', ZB:'Air Albania',
-  AF:'Air France', NZ:'Air New Zealand', QF:'Qantas', VA:'Virgin Australia',
+  NZ:'Air New Zealand', QF:'Qantas', VA:'Virgin Australia',
   MF:'Xiamen Air', '3U':'Sichuan Airlines',
+  UX:'Air Europa', BT:'airBaltic', D8:'Norwegian Air Sweden', CK:'China Cargo',
+  EC:'EuroAtlantic', NO:'Neos', IX:'Air India Express',
+  '7L':'Silk Way West', '5E':'SGA Airlines', WG:'Sunwing', LY:'El Al',
+  HX:'Hong Kong Airlines', JU:'Air Serbia', PS:'Ukraine Intl', BG:'Biman',
+  RU:'AirBridgeCargo', QY:'European Air Transport',
 };
 
 /* ---------- IATA → City for most common Schiphol destinations ---------- */
@@ -472,6 +604,7 @@ const IATA_CITIES = {
   MAD:'Madrid', BCN:'Barcelona', VLC:'Valencia', SVQ:'Sevilla', AGP:'Málaga', BIO:'Bilbao',
   ALC:'Alicante', SCQ:'Santiago de Compostela', LPA:'Las Palmas', TFS:'Tenerife Zuid', TFN:'Tenerife Noord',
   ACE:'Lanzarote', FUE:'Fuerteventura', PMI:'Palma de Mallorca', IBZ:'Ibiza', MAH:'Menorca',
+  GRO:'Girona', REU:'Reus', XRY:'Jerez', VGO:'Vigo', SDR:'Santander', OVD:'Oviedo',
   LIS:'Lissabon', OPO:'Porto', FAO:'Faro', FNC:'Funchal', PDL:'Ponta Delgada',
   // Italy
   FCO:'Rome Fiumicino', CIA:'Rome Ciampino', MXP:'Milaan Malpensa', LIN:'Milaan Linate', BGY:'Bergamo',
@@ -560,6 +693,8 @@ const $date        = document.getElementById('date');
 const $lastUpdate  = document.getElementById('lastUpdate');
 const $live        = document.getElementById('liveIndicator');
 const $liveText    = document.getElementById('liveText');
+const $weather     = document.getElementById('weather');
+const $statsBar    = document.getElementById('statsBar');
 
 /* =====================================================================
    Time / clock
@@ -644,8 +779,13 @@ async function fetchFlights() {
       const id = f.id || f.flightName;
       if (!seen.has(id)) { seen.add(id); flights.push(f); }
     }
-    if (flights.length >= MAX_ROWS + 6) break; // enough — stop paginating
-    if (list.length < 20) break;               // last page
+    // Pagination target: enough ACTIVE (non-departed) flights to fill the board.
+    const active = flights.filter(f => {
+      const s = currentState(f);
+      return s !== 'DEP' && s !== 'TOM';
+    }).length;
+    if (active >= MAX_ROWS + 4) break;
+    if (list.length < 20) break; // last page
   }
   return { flights };
 }
@@ -675,11 +815,35 @@ function airlineName(prefix) {
   return AIRLINES[prefix] || prefix || '';
 }
 
+function airlineForFlight(f) {
+  // Schiphol sometimes returns a quirky prefixIATA (e.g. "EC" for EJU-prefixed
+  // easyJet Europe flights). Prefer prefixICAO when the flightName actually starts
+  // with it AND we know that ICAO code.
+  if (f.prefixICAO && f.flightName?.startsWith(f.prefixICAO) && AIRLINES[f.prefixICAO]) {
+    return AIRLINES[f.prefixICAO];
+  }
+  return airlineName(f.prefixIATA);
+}
+
 function currentState(flight) {
   const states = flight.publicFlightState?.flightStates || [];
   if (states.length === 0) return null;
-  // Use the LAST state (most recent).
+  // Schiphol returns multiple states (e.g. [BRD, DEL]). Show the most actionable —
+  // an active operational state beats a "delayed" or "scheduled" modifier.
+  const priority = ['CNX','DIV','DEP','GTD','GCL','BRD','GCH','GTO','WIL','DEL','SCH','TOM'];
+  for (const p of priority) {
+    if (states.includes(p)) return p;
+  }
   return states[states.length - 1];
+}
+
+function effectiveTime(flight) {
+  // The "best known" departure time: actual > estimated > scheduled.
+  // expectedTimeBoarding is NOT a departure time, do not use it here.
+  const t = flight.actualOffBlockTime ||
+            flight.publicEstimatedOffBlockTime ||
+            flight.scheduleDateTime;
+  return timeToMinutes(t);
 }
 
 function escapeHTML(s) {
@@ -688,32 +852,166 @@ function escapeHTML(s) {
   }[c]));
 }
 
+function codeshareCount(flight) {
+  const cs = flight.codeshares?.codeshares;
+  return Array.isArray(cs) ? cs.length : 0;
+}
+
+function terminalLabel(t) {
+  if (t === undefined || t === null || t === '') return '';
+  return `T${t}`;
+}
+
+function windDirLabel(deg) {
+  if (typeof deg !== 'number') return '';
+  const dirs = ['N','NNO','NO','ONO','O','OZO','ZO','ZZO','Z','ZZW','ZW','WZW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+/* =====================================================================
+   Weather — open-meteo (no auth, CORS-friendly)
+   ===================================================================== */
+const WX_LABELS = {
+  0: 'Helder', 1: 'Vrijwel helder', 2: 'Half bewolkt', 3: 'Bewolkt',
+  45: 'Mist', 48: 'IJzelmist',
+  51: 'Lichte motregen', 53: 'Motregen', 55: 'Zware motregen',
+  56: 'IJzelende motregen', 57: 'Zware ijzelmotregen',
+  61: 'Lichte regen', 63: 'Regen', 65: 'Zware regen',
+  66: 'IJzelende regen', 67: 'Zware ijzelregen',
+  71: 'Lichte sneeuw', 73: 'Sneeuw', 75: 'Zware sneeuw',
+  77: 'Sneeuwkorrels',
+  80: 'Lichte buien', 81: 'Buien', 82: 'Zware buien',
+  85: 'Lichte sneeuwbuien', 86: 'Sneeuwbuien',
+  95: 'Onweer', 96: 'Onweer met hagel', 99: 'Zwaar onweer met hagel',
+};
+
+function weatherIcon(code, isDay) {
+  // Returns SVG markup for a weather code.
+  const sun = `<circle cx="14" cy="14" r="5" fill="#fdc62e"/>
+    <g stroke="#fdc62e" stroke-width="2" stroke-linecap="round">
+      <line x1="14" y1="2"  x2="14" y2="5"/>
+      <line x1="14" y1="23" x2="14" y2="26"/>
+      <line x1="2"  y1="14" x2="5"  y2="14"/>
+      <line x1="23" y1="14" x2="26" y2="14"/>
+      <line x1="5.5"  y1="5.5"  x2="7.6"  y2="7.6"/>
+      <line x1="20.4" y1="20.4" x2="22.5" y2="22.5"/>
+      <line x1="5.5"  y1="22.5" x2="7.6"  y2="20.4"/>
+      <line x1="20.4" y1="7.6"  x2="22.5" y2="5.5"/>
+    </g>`;
+  const moon = `<path d="M20 16a6 6 0 1 1-6-8 5 5 0 0 0 6 8z" fill="#cbd5e1"/>`;
+  const cloud = (color='#94a3b8') => `<path d="M8 20a4 4 0 1 1 .8-7.9A6 6 0 0 1 21 14a4 4 0 1 1-1 8H8z" fill="${color}"/>`;
+  const drops = `<g fill="#38bdf8">
+    <circle cx="9"  cy="25" r="1.1"/>
+    <circle cx="14" cy="26" r="1.1"/>
+    <circle cx="19" cy="25" r="1.1"/>
+  </g>`;
+  const snowflakes = `<g stroke="#cbd5e1" stroke-width="1.4" stroke-linecap="round">
+    <line x1="9"  y1="24" x2="9"  y2="27"/><line x1="7.5" y1="25.5" x2="10.5" y2="25.5"/>
+    <line x1="14" y1="24" x2="14" y2="27"/><line x1="12.5" y1="25.5" x2="15.5" y2="25.5"/>
+    <line x1="19" y1="24" x2="19" y2="27"/><line x1="17.5" y1="25.5" x2="20.5" y2="25.5"/>
+  </g>`;
+  const bolt = `<path d="M14 18l-3 7 6-6h-4l3-6-6 6h4z" fill="#facc15" stroke="#facc15" stroke-width="0.5" stroke-linejoin="round"/>`;
+  const fog = `<g stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round">
+    <line x1="5"  y1="22" x2="23" y2="22"/>
+    <line x1="7"  y1="25" x2="21" y2="25"/>
+  </g>`;
+
+  const wrap = (inner) => `<svg class="wx-icon" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;
+
+  if (code === 0)                  return wrap(isDay ? sun : moon);
+  if (code === 1 || code === 2)    return wrap((isDay ? sun : moon) + cloud());
+  if (code === 3)                  return wrap(cloud('#94a3b8') + cloud('#cbd5e1').replace('M8 20', 'M4 22'));
+  if (code === 45 || code === 48)  return wrap(cloud() + fog);
+  if (code >= 51 && code <= 67)    return wrap(cloud() + drops);
+  if (code >= 71 && code <= 77)    return wrap(cloud() + snowflakes);
+  if (code >= 80 && code <= 82)    return wrap(cloud() + drops);
+  if (code === 85 || code === 86)  return wrap(cloud() + snowflakes);
+  if (code >= 95)                  return wrap(cloud('#64748b') + bolt);
+  return wrap(cloud());
+}
+
+async function fetchWeather() {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${SCHIPHOL_LAT}&longitude=${SCHIPHOL_LON}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,is_day&timezone=Europe%2FAmsterdam&wind_speed_unit=kmh`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    const c = j.current || {};
+    const temp = Math.round(c.temperature_2m);
+    const code = c.weather_code;
+    const wind = Math.round(c.wind_speed_10m);
+    const dir  = windDirLabel(c.wind_direction_10m);
+    const label = WX_LABELS[code] || '';
+    const isDay = c.is_day === 1;
+    $weather.innerHTML = `
+      ${weatherIcon(code, isDay)}
+      <div>
+        <div class="wx-temp">${temp}°</div>
+        <span class="wx-cond">${escapeHTML(label)}</span>
+        <span class="wx-wind">${dir} ${wind} km/u</span>
+      </div>`;
+    $weather.classList.remove('hidden');
+  } catch (e) {
+    console.warn('Weather fetch failed:', e.message);
+    $weather.classList.add('hidden');
+  }
+}
+
+/* =====================================================================
+   Stats bar
+   ===================================================================== */
+function renderStats(flights) {
+  // Counts across the full window (not just visible rows).
+  const counts = { total: flights.length, sch: 0, brd: 0, gate: 0, del: 0, cnx: 0, dep: 0 };
+  for (const f of flights) {
+    const s = currentState(f);
+    if (s === 'BRD') counts.brd++;
+    else if (s === 'GTO' || s === 'GCL' || s === 'GTD' || s === 'GCH') counts.gate++;
+    else if (s === 'DEL') counts.del++;
+    else if (s === 'CNX') counts.cnx++;
+    else if (s === 'DEP') counts.dep++;
+    else counts.sch++;
+  }
+
+  const chips = [
+    `<div class="stat-chip total"><span>Komende ${LOOKAHEAD_HOURS}u</span><span class="num">${counts.total}</span></div>`,
+  ];
+  if (counts.sch)  chips.push(`<div class="stat-chip green"><span class="dot"></span><span>Op tijd</span><span class="num">${counts.sch}</span></div>`);
+  if (counts.brd)  chips.push(`<div class="stat-chip yellow"><span class="dot"></span><span>Boarding</span><span class="num">${counts.brd}</span></div>`);
+  if (counts.gate) chips.push(`<div class="stat-chip cyan"><span class="dot"></span><span>Aan gate</span><span class="num">${counts.gate}</span></div>`);
+  if (counts.del)  chips.push(`<div class="stat-chip orange"><span class="dot"></span><span>Vertraagd</span><span class="num">${counts.del}</span></div>`);
+  if (counts.cnx)  chips.push(`<div class="stat-chip red"><span class="dot"></span><span>Geannuleerd</span><span class="num">${counts.cnx}</span></div>`);
+  if (counts.dep)  chips.push(`<div class="stat-chip gray"><span class="dot"></span><span>Vertrokken</span><span class="num">${counts.dep}</span></div>`);
+
+  $statsBar.innerHTML = chips.join('');
+  $statsBar.classList.remove('hidden');
+}
+
 /* =====================================================================
    Render
    ===================================================================== */
 function renderBoard(flights) {
-  // Filter: drop flights departed long ago.
   const now = Date.now();
-  const cutoffPast = now - HIDE_DEPARTED_AFTER_MIN * 60_000;
 
   const usable = flights.filter(f => {
-    const sched = timeToMinutes(f.scheduleDateTime);
     const state = currentState(f);
-    if (state === 'DEP') {
-      // Departed: hide if too old.
-      const dep = timeToMinutes(f.actualOffBlockTime) || sched;
-      return dep && dep > cutoffPast;
-    }
     if (state === 'TOM') return false; // tomorrow's flights — skip
-    return sched && sched > cutoffPast - 30 * 60_000; // small grace for in-progress
+    const eff = effectiveTime(f) || 0;
+
+    if (state === 'DEP') {
+      // Drop very shortly after actual departure.
+      return eff > now - HIDE_DEPARTED_AFTER_MIN * 60_000;
+    }
+    if (state === 'CNX') {
+      // Show cancelled briefly so travellers see it.
+      return (timeToMinutes(f.scheduleDateTime) || 0) > now - 30 * 60_000;
+    }
+    // Active/scheduled flights: keep if the effective time isn't way in the past.
+    return eff > now - HIDE_PAST_AFTER_MIN * 60_000;
   });
 
-  // Sort by effective time (estimated > scheduled).
-  usable.sort((a, b) => {
-    const ta = timeToMinutes(a.estimatedLandingTime) || timeToMinutes(a.scheduleDateTime) || 0;
-    const tb = timeToMinutes(b.estimatedLandingTime) || timeToMinutes(b.scheduleDateTime) || 0;
-    return ta - tb;
-  });
+  // Sort by effective time so delayed flights move to their new slot.
+  usable.sort((a, b) => (effectiveTime(a) || 0) - (effectiveTime(b) || 0));
 
   const top = usable.slice(0, MAX_ROWS);
 
@@ -730,6 +1028,7 @@ function renderBoard(flights) {
       <div>Tijd</div>
       <div>Vlucht</div>
       <div>Bestemming</div>
+      <div class="center">Term</div>
       <div class="center">Gate</div>
       <div class="right">Status</div>
     </div>
@@ -738,7 +1037,9 @@ function renderBoard(flights) {
 
   for (const f of top) {
     const sched = f.scheduleDateTime;
-    const estDep = f.estimatedLandingTime || f.expectedTimeBoarding || f.publicEstimatedOffBlockTime;
+    // For departures: actualOffBlockTime (already gone) → publicEstimatedOffBlockTime (delay-aware).
+    // NOT expectedTimeBoarding — that's when boarding starts, not new departure time.
+    const estDep = f.actualOffBlockTime || f.publicEstimatedOffBlockTime;
     const schedStr = fmtTime(sched);
     const estStr = estDep ? fmtTime(estDep) : null;
     const showEst = estStr && estStr !== schedStr;
@@ -750,8 +1051,10 @@ function renderBoard(flights) {
     const showIATASuffix = destName !== final && final;
 
     const gate = f.gate || '';
-    const airline = airlineName(f.prefixIATA);
+    const term = terminalLabel(f.terminal);
+    const airline = airlineForFlight(f);
     const flightNum = f.flightName || `${f.prefixIATA || ''}${f.flightNumber || ''}`;
+    const csCount = codeshareCount(f);
 
     const state = currentState(f);
     const stateInfo = STATE_LABELS[state] || { label: state || '—', cls: 'status-unknown' };
@@ -766,13 +1069,14 @@ function renderBoard(flights) {
           ${showEst ? `<span class="old-time">${schedStr}</span><span class="new-time">${estStr}</span>` : schedStr}
         </div>
         <div class="col-flight">
-          ${escapeHTML(flightNum)}
+          <span class="flight-num">${escapeHTML(flightNum)}${csCount ? `<span class="codeshare-badge">+${csCount}</span>` : ''}</span>
           ${airline ? `<span class="airline">${escapeHTML(airline)}</span>` : ''}
         </div>
         <div class="col-destination">
           ${escapeHTML(destName)}${showIATASuffix ? `<span class="iata-suffix">${escapeHTML(final)}</span>` : ''}
           ${vias.length ? `<span class="via">via ${vias.map(v => escapeHTML(destinationName(v))).join(', ')}</span>` : ''}
         </div>
+        <div class="col-terminal ${term ? '' : 'empty'}">${escapeHTML(term || '—')}</div>
         <div class="col-gate ${gate ? '' : 'empty'}">${escapeHTML(gate || '—')}</div>
         <div class="col-status ${stateInfo.cls}">${escapeHTML(stateInfo.label)}</div>
       </div>
@@ -807,6 +1111,7 @@ async function refresh() {
   try {
     const data = await fetchFlights();
     const flights = Array.isArray(data?.flights) ? data.flights : [];
+    renderStats(flights);
     renderBoard(flights);
     consecutiveErrors = 0;
     $live.classList.remove('offline');
@@ -828,6 +1133,9 @@ async function refresh() {
 
 refresh();
 setInterval(refresh, REFRESH_INTERVAL_MS);
+
+fetchWeather();
+setInterval(fetchWeather, WEATHER_REFRESH_MS);
 </script>
 </body>
 </html>
